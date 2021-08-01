@@ -63,6 +63,9 @@ func _process(delta):
 	direction_input = Vector2.ZERO
 	
 	if can_control:
+		if Input.is_action_just_released("ui_exit"):
+			get_tree().quit()
+			
 		direction_input.y -= Input.get_action_strength("gp_movement_d") - Input.get_action_strength("gp_movement_u")
 		direction_input.x -= Input.get_action_strength("gp_movement_l") - Input.get_action_strength("gp_movement_r")
 		direction -= $VIEW_ANCHOR.global_transform.basis.z * direction_input.y - $VIEW_ANCHOR.global_transform.basis.x * direction_input.x
@@ -78,7 +81,7 @@ func _process(delta):
 			$MODEL/Tree.set("parameters/attack/active", true)
 			$MODEL/Tree.set("parameters/attack_bs/blend_position", Vector2(0, 0))
 			can_control = false
-		if Input.is_action_just_pressed("gp_attack_strong") and stamina >= 25.0:
+		if (Input.is_action_just_pressed("gp_attack_strong") or (Input.is_action_just_pressed("gp_attack_weak") and Input.is_action_pressed("gp_heavy_mod"))) and stamina >= 25.0:
 			stamina -= 25.0
 			
 			if backstab_target != null:
@@ -130,7 +133,7 @@ func _process(delta):
 	
 	if direction != Vector3.ZERO:
 		view_direction = lerp(view_direction, direction, delta * VIEW_SPEED)
-		$direction.look_at(global_transform.origin - linear_velocity * 2.0, Vector3.UP)
+		#$direction.look_at(global_transform.origin - linear_velocity * 2.0, Vector3.UP)
 		linear_velocity = lerp(linear_velocity, view_direction.normalized() * (MAX_SPEED + SPRINT_SPEED * int(Input.is_action_pressed("gp_movement_sprint"))), delta * VIEW_SPEED)
 		if !lock_on_active:
 			$MODEL.global_transform.basis = $MODEL.global_transform.basis.slerp($MODEL.global_transform.looking_at(global_transform.origin - view_direction * 2.0, Vector3.UP).basis, delta * VIEW_SPEED)
